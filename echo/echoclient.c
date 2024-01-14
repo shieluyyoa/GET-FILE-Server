@@ -18,7 +18,7 @@
     "options:\n"                                                                    \
     "  -p                  Port (Default: 37482)\n"                                  \
     "  -s                  Server (Default: localhost)\n"                           \
-    "  -m                  Message to send to server (Default: \"hello world.\")\n" \
+    "  -m                  Message to send to server (Default: \"Hello Spring!!\")\n" \
     "  -h                  Show this help message\n"
 
 /* OPTIONS DESCRIPTOR ====================================================== */
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     int option_char = 0;
     unsigned short portno = 37482;
     char *hostname = "localhost";
-    char *message = "Hello World!!";
+    char *message = "Hello Spring!!";
 
     // Parse and set command line arguments
     while ((option_char = getopt_long(argc, argv, "s:p:m:hx", gLongOptions, NULL)) != -1) {
