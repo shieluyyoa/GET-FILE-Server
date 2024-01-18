@@ -96,10 +96,11 @@ int main(int argc, char **argv) {
       case 's':  // server
         server = optarg;
         break;
-	  case 'w':  // workload-path
+      case 'w':  // workload-path
         workload_path = optarg;
         break;
-	  case 'n': // nrequests
+      case 'r': // nrequests
+      case 'n': // nrequests
         nrequests = atoi(optarg);
         break;
       case 't':  // nthreads
