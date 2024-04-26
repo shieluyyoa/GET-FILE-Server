@@ -29,23 +29,28 @@ static struct option gLongOptions[] = {
 
 static void Usage() { fprintf(stdout, "%s", USAGE); }
 
-static void localPath(char *req_path, char *local_path) {
+static void localPath(char *req_path, char *local_path)
+{
   static int counter = 0;
 
   snprintf(local_path, PATH_BUFFER_SIZE, "%s_%06d", &req_path[1], counter++);
 }
 
-static FILE *openFile(char *path) {
+static FILE *openFile(char *path)
+{
   char *cur, *prev;
   FILE *ans;
 
   /* Make the directory if it isn't there */
   prev = path;
-  while (NULL != (cur = strchr(prev + 1, '/'))) {
+  while (NULL != (cur = strchr(prev + 1, '/')))
+  {
     *cur = '\0';
 
-    if (0 > mkdir(&path[0], S_IRWXU)) {
-      if (errno != EEXIST) {
+    if (0 > mkdir(&path[0], S_IRWXU))
+    {
+      if (errno != EEXIST)
+      {
         perror("Unable to create directory");
         exit(EXIT_FAILURE);
       }
@@ -55,7 +60,8 @@ static FILE *openFile(char *path) {
     prev = cur;
   }
 
-  if (NULL == (ans = fopen(&path[0], "w"))) {
+  if (NULL == (ans = fopen(&path[0], "w")))
+  {
     perror("Unable to open file");
     exit(EXIT_FAILURE);
   }
@@ -64,14 +70,16 @@ static FILE *openFile(char *path) {
 }
 
 /* Callbacks ========================================================= */
-static void writecb(void *data, size_t data_len, void *arg) {
+static void writecb(void *data, size_t data_len, void *arg)
+{
   FILE *file = (FILE *)arg;
-
+  printf("data written to file %p", data);
   fwrite(data, 1, data_len, file);
 }
 
 /* Main ========================================================= */
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   /* COMMAND LINE OPTIONS ============================================= */
 
   gfcrequest_t *gfr;
@@ -87,41 +95,45 @@ int main(int argc, char **argv) {
   char *server = "localhost";
   unsigned short port = 47293;
 
-  setbuf(stdout, NULL);  // disable buffering
+  setbuf(stdout, NULL); // disable buffering
 
   // Parse and set command line arguments
   while ((option_char = getopt_long(argc, argv, "l:r:hp:s:n:", gLongOptions,
-                                    NULL)) != -1) {
-    switch (option_char) {
-      case 'r':
-      case 'n':  // nrequests
-        nrequests = atoi(optarg);
-        break;	
-	  case 's':  // server
-        server = optarg;
-        break;
-        Usage();
-      case 'h':  // help
-        Usage();
-        exit(0);
-        break;
-      case 'p':  // port
-        port = atoi(optarg);
-        break;
-      case 'w':  // workload-path
-        workload_path = optarg;
-        break;
-      default:
-        exit(1);
+                                    NULL)) != -1)
+  {
+    switch (option_char)
+    {
+    case 'r':
+    case 'n': // nrequests
+      nrequests = atoi(optarg);
+      break;
+    case 's': // server
+      server = optarg;
+      break;
+      Usage();
+    case 'h': // help
+      Usage();
+      exit(0);
+      break;
+    case 'p': // port
+      port = atoi(optarg);
+      break;
+    case 'w': // workload-path
+      workload_path = optarg;
+      break;
+    default:
+      exit(1);
     }
   }
 
-  if (port > 65331) {
+  if (port > 65331)
+  {
     fprintf(stderr, "Invalid port number\n");
     exit(EXIT_FAILURE);
   }
 
-  if (EXIT_SUCCESS != workload_init(workload_path)) {
+  if (EXIT_SUCCESS != workload_init(workload_path))
+  {
     fprintf(stderr, "Unable to load workload file %s.\n", workload_path);
     exit(EXIT_FAILURE);
   }
@@ -129,10 +141,12 @@ int main(int argc, char **argv) {
   gfc_global_init();
 
   /*Making the requests...*/
-  for (int i = 0; i < nrequests; i++) {
+  for (int i = 0; i < nrequests; i++)
+  {
     req_path = workload_get_path();
 
-    if (strlen(req_path) > 256) {
+    if (strlen(req_path) > 256)
+    {
       fprintf(stderr, "Request path exceeded maximum of 256 characters\n.");
       exit(EXIT_FAILURE);
     }
@@ -147,37 +161,39 @@ int main(int argc, char **argv) {
     gfc_set_path(&gfr, req_path);
     gfc_set_server(&gfr, server);
 
-
     gfc_set_writefunc(&gfr, writecb);
     gfc_set_writearg(&gfr, file);
 
     fprintf(stdout, "Requesting %s%s\n", server, req_path);
 
-    if (0 > (returncode = gfc_perform(&gfr))) {
+    if (0 > (returncode = gfc_perform(&gfr)))
+    {
       fprintf(stdout, "gfc_perform returned error %d\n", returncode);
       fclose(file);
       if (0 > unlink(local_path))
         fprintf(stderr, "warning: unlink failed on %s\n", local_path);
-    } else {
+    }
+    else
+    {
       fclose(file);
     }
 
-    if (gfc_get_status(&gfr) != GF_OK) {
+    if (gfc_get_status(&gfr) != GF_OK)
+    {
       if (0 > unlink(local_path))
         fprintf(stderr, "warning: unlink failed on %s\n", local_path);
     }
 
-
     fprintf(stdout, "Received:: %zu of %zu bytes\n", gfc_get_bytesreceived(&gfr),
             gfc_get_filelen(&gfr));
-        fprintf(stdout, "Status: %s\n", gfc_strstatus(gfc_get_status(&gfr)));
+    fprintf(stdout, "Status: %s\n", gfc_strstatus(gfc_get_status(&gfr)));
 
     gfc_cleanup(&gfr);
   }
 
   gfc_global_cleanup();
 
-  workload_destroy();  // clean up workload package
+  workload_destroy(); // clean up workload package
 
   return 0;
 }

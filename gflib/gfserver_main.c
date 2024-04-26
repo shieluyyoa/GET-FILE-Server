@@ -18,7 +18,7 @@
   "usage:\n"                                                                                   \
   "  gfserver_main [options]\n"                                                                \
   "options:\n"                                                                                 \
-  "  -h          		Show this help message.\n"              		                       \
+  "  -h          		Show this help message.\n"                                                  \
   "  -m [content_file]  Content file mapping keys to content filea (Default: 'content.txt')\n" \
   "  -p [listen_port]   Listen port (Default: 47293)\n"
 
@@ -30,38 +30,41 @@ static struct option gLongOptions[] = {
     {NULL, 0, NULL, 0}};
 
 /* Main ========================================================= */
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   gfserver_t *gfs = NULL;
   char *content_map_file = "content.txt";
   unsigned short port = 47293;
   int option_char = 0;
 
-
-  setbuf(stdout, NULL);  // disable caching of standpard output
+  setbuf(stdout, NULL); // disable caching of standpard output
 
   // Parse and set command line arguments
-  while ((option_char = getopt_long(argc, argv, "hal:p:m:", gLongOptions, NULL)) != -1) {
-    switch (option_char) {
+  while ((option_char = getopt_long(argc, argv, "hal:p:m:", gLongOptions, NULL)) != -1)
+  {
+    switch (option_char)
+    {
 
-      case 'p':  /* listen-port */
-        port = atoi(optarg);
-        break;
-      case 'm':  /* file-path */
-        content_map_file = optarg;
-        break;
-      case 'h':  /* help */
-        fprintf(stdout, "%s", USAGE);
-        exit(0);
-        break;
-      default:
-        fprintf(stderr, "%s", USAGE);
-        exit(1);
+    case 'p': /* listen-port */
+      port = atoi(optarg);
+      break;
+    case 'm': /* file-path */
+      content_map_file = optarg;
+      break;
+    case 'h': /* help */
+      fprintf(stdout, "%s", USAGE);
+      exit(0);
+      break;
+    default:
+      fprintf(stderr, "%s", USAGE);
+      exit(1);
     }
   }
 
   content_init(content_map_file);
 
-  if (port > 65331) {
+  if (port > 65331)
+  {
     fprintf(stderr, "Invalid port number\n");
     exit(EXIT_FAILURE);
   }
@@ -80,5 +83,5 @@ int main(int argc, char **argv) {
   gfserver_set_handlerarg(&gfs, NULL);
 
   // Run forever
-  gfserver_serve(&gfs);
+  gfsever_serve(&gfs);
 }
